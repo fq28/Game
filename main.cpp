@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "iostream"
+#include <algorithm>
 
 sf::Vector2f Lerp(sf::Vector2f start, sf::Vector2f end, float percent)
 {
@@ -28,7 +29,12 @@ void MovePlayer(sf::Shape &player, sf::Vector2f &playerPos, float moveSpeed, sf:
 {
     playerPos.x = playerPos.x + direction.x * moveSpeed;
     playerPos.y = playerPos.y + direction.y * moveSpeed;
-    player.setPosition(playerPos.x, playerPos.y);
+    player.setPosition(playerPos);
+}
+void MovePlayerBackInTime(sf::Shape &player, std::vector<sf::Vector2f> pastPlayerPos, sf::Vector2f &playerPos, int iteration)
+{
+    playerPos = pastPlayerPos[iteration];
+    player.setPosition(playerPos);
 }
 void MoveView(sf::View &view, sf::Vector2f &playerPos, sf::Time deltaTime)
 {
@@ -96,7 +102,7 @@ void CheckCollision(sf::Shape &player, std::vector<sf::RectangleShape> &obstacle
 }
 void MoveEnemys(std::vector<sf::RectangleShape> &enemys, sf::Shape &player, std::vector<sf::RectangleShape> & obstacles)
 {
-    float moveSpeed = 5;
+    float moveSpeed = 3;
     sf::Vector2f playerPos = player.getPosition();
     for(unsigned i = 0; i < enemys.size(); ++i)
     {
@@ -104,8 +110,8 @@ void MoveEnemys(std::vector<sf::RectangleShape> &enemys, sf::Shape &player, std:
 
         float deltaX = std::abs(playerPos.x - enemys[i].getPosition().x);
         float deltaY = std::abs(playerPos.y - enemys[i].getPosition().y);
-        float rangeX = player.getScale().x * 200;
-        float rangeY = player.getScale().y * 200;
+        float rangeX = player.getScale().x * 100;
+        float rangeY = player.getScale().y * 100;
 
         CheckCollision(enemys[i],obstacles, enemyDirection.x, enemyDirection.y);
         CheckCollision(enemys[i], enemys, enemyDirection.x, enemyDirection.y);
@@ -121,7 +127,8 @@ void MoveEnemys(std::vector<sf::RectangleShape> &enemys, sf::Shape &player, std:
 
     }
 }
-void CheckInput(float &moveDirectionX, float &moveDirectionY)
+void CheckInput(float &moveDirectionX, float &moveDirectionY, bool &spaceButtonPressed, std::vector<sf::Vector2f> &pastPlayerPos,
+                sf::Shape &player)
 {
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
@@ -150,6 +157,25 @@ void CheckInput(float &moveDirectionX, float &moveDirectionY)
     {
         moveDirectionY = 0.f;
     }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    {
+        if(!spaceButtonPressed)
+        {
+            std::reverse(pastPlayerPos.begin(), pastPlayerPos.end());
+            player.setFillColor(sf::Color(92, 140, 10));
+        }
+        spaceButtonPressed = true;
+    }
+    else
+    {
+        if(spaceButtonPressed)
+        {
+            pastPlayerPos.clear();
+            player.setFillColor(sf::Color(92, 140, 219));
+        }
+        spaceButtonPressed = false;
+    }
+
 }
 int main()
 {
@@ -159,6 +185,7 @@ int main()
     sf::View view(sf::FloatRect(0,0,1000,600));
     window.setView(view);
     sf::Clock clock;
+    bool spaceButtonPressed = false;
 
     //setup player
     sf::Vector2f shape_1(100,100);
@@ -171,6 +198,10 @@ int main()
     float moveDirectionX = 0;
     float moveDirectionY = 0;
     sf::Vector2f playerPos(0,0);
+    std::vector<sf::Vector2f> pastPlayerPos;
+    int iteration = 0;
+    bool getPos = true;
+    bool prevGetPos = false;
 
     //setup ai
     std::vector<sf::RectangleShape> enemys;
@@ -193,13 +224,38 @@ int main()
         if (event.type == sf::Event::Closed)
                        window.close();
     }
-    CheckInput(moveDirectionX,moveDirectionY);
+    CheckInput(moveDirectionX,moveDirectionY, spaceButtonPressed, pastPlayerPos, player);
     CheckCollision(player, obstacles, moveDirectionX, moveDirectionY);
     CheckCollision(player, enemys, moveDirectionX, moveDirectionY);
     MoveEnemys(enemys, player, obstacles);
 
-    moveDirection = sf::Vector2f(moveDirectionX,moveDirectionY);
-    MovePlayer(player, playerPos, moveSpeed, moveDirection);
+    if(!spaceButtonPressed)
+    {
+        iteration = 0;
+        moveDirection = sf::Vector2f(moveDirectionX,moveDirectionY);
+        MovePlayer(player, playerPos, moveSpeed, moveDirection);
+
+        //stupid, but works
+        if(getPos)
+        {
+            pastPlayerPos.push_back(playerPos);
+            prevGetPos = true;
+        }
+        if(!getPos && prevGetPos)
+        {
+            prevGetPos = false;
+            getPos = true;
+        }
+        if(getPos && prevGetPos)
+        {
+            getPos = false;
+        }
+    }
+    else if(iteration < pastPlayerPos.size())
+    {
+        MovePlayerBackInTime(player,pastPlayerPos,playerPos,iteration);
+        iteration ++;
+    }
     MoveView(view, playerPos, elasped);
     window.setView(view);
 

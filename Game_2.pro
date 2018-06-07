@@ -5,7 +5,11 @@ CONFIG -= qt
  QT += core
 
 SOURCES += \
-        main.cpp
+        main.cpp \
+    object.cpp \
+    enemy.cpp \
+    player.cpp \
+    levels.cpp
 
 
 QMAKE_CXXFLAGS += -std=c++11 -Wall -Wextra
@@ -15,5 +19,11 @@ LIBS += -lsfml-network
 
 INCLUDEPATH += C:/SFML/include
 DEPENDPATH += C:/SFML/include
+
+HEADERS += \
+    object.h \
+    enemy.h \
+    player.h \
+    levels.h
 
 

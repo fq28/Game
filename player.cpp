@@ -18,10 +18,7 @@ void MoveView(sf::View &view, sf::Vector2f &playerPos, sf::Time deltaTime)
     sf::Vector2f viewPos = view.getCenter();
     view.setCenter(Lerp(viewPos,targetViewPos, deltaTime.asSeconds() * speed));
 }
-void PlayerDie(sf::RectangleShape &player)
-{
-    player.scale(0,0);
-}
+
 
 bool InRange(sf::Vector2f &playerPos, sf::RectangleShape shape)
 {
@@ -119,4 +116,8 @@ void CheckInput(float &moveDirectionX, float &moveDirectionY, bool &spaceButtonP
         eButtonPressed = false;
     }
 
+}
+void PlayerDie(sf::RectangleShape &player)
+{
+    player.scale(0,0);
 }

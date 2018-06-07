@@ -2,6 +2,7 @@
 #include "iostream"
 #include <algorithm>
 #include "object.h"
+#include "player.h"
 
 void CreateCircleObject(sf::Vector2f scale, sf::Color color, sf::Vector2f startPos,float radius, std::vector<sf::CircleShape> &obstacles)
 {
@@ -23,8 +24,9 @@ void CreateRectangleObject(sf::Vector2f scale, sf::Color color, sf::Vector2f sta
     obstacle.setPosition(startPos);
     obstacles.push_back(obstacle);
 }
-void CheckCollision(sf::Shape &player, std::vector<sf::RectangleShape> &obstacles, float &moveDirectionX, float &moveDirectionY, bool isMoving,
-                    std::vector<float> wallSpeeds)
+
+void CheckCollision(sf::RectangleShape &player, std::vector<sf::RectangleShape> &obstacles, float &moveDirectionX, float &moveDirectionY, bool isMoving,
+                    std::vector<float> wallSpeeds, bool isGoingBackInTime)
 {
    sf::Vector2f playerPos = player.getPosition();
    for(unsigned i = 0; i < obstacles.size(); ++i)
@@ -49,6 +51,12 @@ void CheckCollision(sf::Shape &player, std::vector<sf::RectangleShape> &obstacle
                    if(isMoving)
                    {
                        moveDirectionX = 1 * (wallSpeeds[i] / 5);
+                       std::cout<<"dX: "<<deltaX;
+
+                        if(deltaX < 10 && deltaX > 0 && !isGoingBackInTime)
+                        {
+                            PlayerDie(player);
+                        }
                    }
                }
            }
@@ -62,6 +70,11 @@ void CheckCollision(sf::Shape &player, std::vector<sf::RectangleShape> &obstacle
                    if(isMoving)
                    {
                        moveDirectionX = -1 * (wallSpeeds[i] / 5);
+                       std::cout<<"dX: "<<deltaX;
+                       if(deltaX < 10 && deltaX > 0 && !isGoingBackInTime)
+                       {
+                           PlayerDie(player);
+                       }
                    }
                }
            }
@@ -75,6 +88,10 @@ void CheckCollision(sf::Shape &player, std::vector<sf::RectangleShape> &obstacle
                    if(isMoving)
                    {
                        moveDirectionY = 1 * (wallSpeeds[i] / 5);
+                       if(deltaY < 10 && deltaY > 0 && !isGoingBackInTime)
+                       {
+                         PlayerDie(player);
+                       }
                    }
                }
            }
@@ -88,6 +105,10 @@ void CheckCollision(sf::Shape &player, std::vector<sf::RectangleShape> &obstacle
                    if(isMoving)
                    {
                        moveDirectionY = -1  * (wallSpeeds[i] / 5);
+                       if(deltaY < 10 && deltaY > 0 && !isGoingBackInTime)
+                       {
+                         PlayerDie(player);
+                       }
                    }
                }
            }

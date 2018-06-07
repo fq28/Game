@@ -87,13 +87,13 @@ std::vector<sf::RectangleShape> EnemyShootAgents(sf::RectangleShape &enemy)
 }
 std::vector<sf::Vector2f> EnemyShootAgentsTargetPositions(sf::Vector2f &playerPos, std::vector<sf::RectangleShape> &obstacles
                                                           , std::vector<sf::RectangleShape> &movingWalls, std::vector<sf::RectangleShape> &doors
-                                                          , std::vector<sf::RectangleShape> &enemyShootAgents, std::vector<sf::RectangleShape> &enemys)
+                                                          , std::vector<sf::RectangleShape> &enemyShootAgents, std::vector<sf::RectangleShape> &enemys, float deltaAgent)
 {
     std::vector<sf::Vector2f> targetPositions;
-    targetPositions.push_back(playerPos + sf::Vector2f(110,0)); //right
-    targetPositions.push_back(playerPos + sf::Vector2f(-110,0)); //left
-    targetPositions.push_back(playerPos + sf::Vector2f(0,-110)); //above
-    targetPositions.push_back(playerPos + sf::Vector2f(0,110)); //under
+    targetPositions.push_back(playerPos + sf::Vector2f(deltaAgent ,0)); //right
+    targetPositions.push_back(playerPos + sf::Vector2f(-deltaAgent,0)); //left
+    targetPositions.push_back(playerPos + sf::Vector2f(0,-deltaAgent)); //above
+    targetPositions.push_back(playerPos + sf::Vector2f(0,deltaAgent)); //under
     /* fun
     targetPositions.push_back(playerPos + sf::Vector2f(0,0)); //on top
     targetPositions.push_back(playerPos + sf::Vector2f(220,0)); //far right
@@ -144,12 +144,12 @@ void MoveEnemys(std::vector<sf::RectangleShape> &enemys, sf::Shape &player, std:
 
         float deltaX = std::abs(playerPos.x - enemys[i].getPosition().x);
         float deltaY = std::abs(playerPos.y - enemys[i].getPosition().y);
-        float rangeX = player.getScale().x * 200;
-        float rangeY = player.getScale().y * 200;
+        float rangeX = player.getScale().x * 300;
+        float rangeY = player.getScale().y * 300;
 
         std::vector<float> temp;
-        CheckCollision(enemys[i],obstacles, enemyDirection.x, enemyDirection.y, false, temp);
-        CheckCollision(enemys[i], enemys, enemyDirection.x, enemyDirection.y, false, temp);
+        CheckCollision(enemys[i],obstacles, enemyDirection.x, enemyDirection.y, false, temp, false);
+        CheckCollision(enemys[i], enemys, enemyDirection.x, enemyDirection.y, false, temp, false);
 
         if(enemysTargetPos[i] != sf::Vector2f(0,0))
         {
@@ -238,7 +238,8 @@ void MoveEnemys(std::vector<sf::RectangleShape> &enemys, sf::Shape &player, std:
             {
                 lockedIn[i] = true;
                 enemysShootAgents.push_back(EnemyShootAgents(enemys[i]));
-                enemysShootAgentsTargetPositions.push_back(EnemyShootAgentsTargetPositions(playerPos,obstacles, movingWalls, doors, enemysShootAgents[i], enemys));
+                float deltaAgent = 110 * enemys[i].getScale().x;
+                enemysShootAgentsTargetPositions.push_back(EnemyShootAgentsTargetPositions(playerPos,obstacles, movingWalls, doors, enemysShootAgents[i], enemys, deltaAgent));
             }
             int readyCheck = 0;
             if(enemysShootAgents[i].size() > 0)

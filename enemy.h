@@ -22,7 +22,7 @@ void MoveEnemys(std::vector<sf::RectangleShape> &enemys, sf::Shape &player, std:
 std::vector<sf::Vector2f> EnemyShootAgentsTargetPositions(sf::Vector2f &playerPos, std::vector<sf::RectangleShape> &obstacles
                                                           , std::vector<sf::RectangleShape> &movingWalls, std::vector<sf::RectangleShape> &doors
                                                           , std::vector<sf::RectangleShape> &enemyShootAgents, std::vector<sf::RectangleShape> &enemys);
-std::vector<sf::RectangleShape> EnemyShootAgents(sf::RectangleShape &enemy);
+std::vector<sf::RectangleShape> EnemyShootAgents(sf::RectangleShape &enemy, float deltaAgent);
 bool DoesCollide(sf::Vector2f pos, std::vector<sf::RectangleShape> &obstacles)
 ;
 

@@ -56,6 +56,7 @@ int main()
     int iteration = 0;
     bool getPos = true;
     bool prevGetPos = false;
+    bool isGoingBackInTime = false;
     //float timeR;
 
     std::vector<sf::CircleShape> circles;
@@ -69,6 +70,7 @@ int main()
     std::vector<float> radius;
     std::vector<sf::Vector2f> middle;
     std::vector<float> length;
+
 
 
 
@@ -96,8 +98,9 @@ int main()
     std::vector<sf::RectangleShape> goals;
 
     int level = 1;
-    GenerateLevel1(obstacles, buttons, doors, goals, traps, movingWalls, wallDirection, wallsMoving, wallSpeeds, lockedIn, enemysTargetPos,
-                   enemysNormalPos, radius, middle, length, enemys);
+    GenerateLevel4(obstacles, buttons, doors, goals, traps, movingWalls, wallDirection, wallsMoving, wallSpeeds, lockedIn, enemysTargetPos,
+                  enemysNormalPos, radius, middle, length, enemys);
+
 
   while (window.isOpen())
   {
@@ -131,7 +134,6 @@ int main()
         {
             traps[i].setScale(sf::Vector2f(0,0));
             wallsMoving[i] = true;
-            movingWalls[i].setScale(sf::Vector2f(1,3));
         }
         if(wallsMoving[i])
         {
@@ -139,10 +141,10 @@ int main()
         }
     }
 
-    CheckCollision(player, movingWalls, moveDirectionX, moveDirectionY, true, wallSpeeds);
-    CheckCollision(player, obstacles, moveDirectionX, moveDirectionY, false, wallSpeeds);
-    CheckCollision(player, doors, moveDirectionX, moveDirectionY, false, wallSpeeds);
-    CheckCollision(player, enemys, moveDirectionX, moveDirectionY, false, wallSpeeds);
+    CheckCollision(player, movingWalls, moveDirectionX, moveDirectionY, true, wallSpeeds, isGoingBackInTime);
+    CheckCollision(player, obstacles, moveDirectionX, moveDirectionY, false, wallSpeeds, false);
+    CheckCollision(player, doors, moveDirectionX, moveDirectionY, false, wallSpeeds, false);
+    CheckCollision(player, enemys, moveDirectionX, moveDirectionY, false, wallSpeeds, false);
 
 
     invincibilityTimR -= elasped.asSeconds();
@@ -182,7 +184,7 @@ int main()
     if(!spaceButtonPressed)
     {
         iteration = 0;
-
+        isGoingBackInTime = false;
         moveDirection = sf::Vector2f(moveDirectionX,moveDirectionY);
         MovePlayer(player, playerPos, moveSpeed, moveDirection);
 
@@ -209,6 +211,7 @@ int main()
     else if(iteration < pastPlayerPos.size() && invincibilityTimR <= 0)
     {
         MovePlayerBackInTime(player,pastPlayerPos,playerPos,iteration);
+        isGoingBackInTime = true;
         iteration ++;
     }
 

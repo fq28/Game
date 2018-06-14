@@ -14,7 +14,6 @@ void CreateCircleObject(sf::Vector2f scale, sf::Color color, sf::Vector2f startP
     obstacle.setRadius(radius);
     obstacles.push_back(obstacle);
 }
-
 void CreateRectangleObject(sf::Vector2f scale, sf::Color color, sf::Vector2f startPos, std::vector<sf::RectangleShape> &obstacles)
 {
     sf::Vector2f shape(100,100);
@@ -26,7 +25,7 @@ void CreateRectangleObject(sf::Vector2f scale, sf::Color color, sf::Vector2f sta
 }
 
 void CheckCollision(sf::RectangleShape &player, std::vector<sf::RectangleShape> &obstacles, float &moveDirectionX, float &moveDirectionY, bool isMoving,
-                    std::vector<float> wallSpeeds, bool isGoingBackInTime)
+                    std::vector<float> wallSpeeds, bool isGoingBackInTime, std::vector<int> oneWayDoorDirection)
 {
    sf::Vector2f playerPos = player.getPosition();
    for(unsigned i = 0; i < obstacles.size(); ++i)
@@ -42,7 +41,7 @@ void CheckCollision(sf::RectangleShape &player, std::vector<sf::RectangleShape> 
            sf::Vector2f objectScale = obstacles[i].getScale();
 
            //object on the left side of the player
-           if(deltaX <= rangeX && deltaX >= 0)
+           if(deltaX <= rangeX && deltaX >= 0 && oneWayDoorDirection[i] != 0)
            {
                if((deltaY <= rangeY - objectScale.y * 3 && deltaY >= 0) || (deltaY >= -rangeY/objectScale.y + objectScale.x * 3 && deltaY < 0))
                {
@@ -61,7 +60,7 @@ void CheckCollision(sf::RectangleShape &player, std::vector<sf::RectangleShape> 
                }
            }
            //object to the right of the player
-           if(deltaX >= -rangeX/objectScale.x && deltaX < 0)
+           if(deltaX >= -rangeX/objectScale.x && deltaX < 0 && oneWayDoorDirection[i] != 1)
            {
                if((deltaY <= rangeY - objectScale.y * 3 && deltaY >= 0) || (deltaY >= -rangeY/objectScale.y + objectScale.x * 3 && deltaY < 0))
                {
@@ -79,7 +78,7 @@ void CheckCollision(sf::RectangleShape &player, std::vector<sf::RectangleShape> 
                }
            }
            //object above the player
-           if(deltaY <= rangeY && deltaY >= 0)
+           if(deltaY <= rangeY && deltaY >= 0 && oneWayDoorDirection[i] != 3)
            {
                if((deltaX <= rangeX - objectScale.x * 3 && deltaX >= 0) || (deltaX >= -rangeX/objectScale.x + objectScale.x * 3 && deltaX < 0))
                {
@@ -96,7 +95,7 @@ void CheckCollision(sf::RectangleShape &player, std::vector<sf::RectangleShape> 
                }
            }
            //object under the player
-           if(deltaY >= -rangeY/objectScale.y && deltaY < 0)
+           if(deltaY >= -rangeY/objectScale.y && deltaY < 0 && oneWayDoorDirection[i] != 2)
            {
                if((deltaX <= rangeX - objectScale.x * 3 && deltaX >= 0) || (deltaX >= -rangeX/objectScale.x + objectScale.x * 3 && deltaX < 0))
                {

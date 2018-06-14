@@ -49,7 +49,7 @@ void MovePlayerBackInTime(sf::Shape &player, const std::vector<sf::Vector2f> pas
 
 
 void CheckInput(float &moveDirectionX, float &moveDirectionY, bool &spaceButtonPressed,bool &eButtonPressed, std::vector<sf::Vector2f> &pastPlayerPos,
-                sf::Shape &player)
+                sf::Shape &player, bool &rButtonUp)
 {
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
@@ -99,10 +99,8 @@ void CheckInput(float &moveDirectionX, float &moveDirectionY, bool &spaceButtonP
     {
         if(spaceButtonPressed)
         {
-
                 pastPlayerPos.clear();
                 player.setFillColor(sf::Color(92, 140, 219));
-
 
         }
         spaceButtonPressed = false;
@@ -114,6 +112,14 @@ void CheckInput(float &moveDirectionX, float &moveDirectionY, bool &spaceButtonP
     else
     {
         eButtonPressed = false;
+    }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+    {
+        rButtonUp = true;
+    }
+    else
+    {
+        rButtonUp = false;
     }
 
 }

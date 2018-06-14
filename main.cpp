@@ -70,9 +70,7 @@ int main()
     std::vector<float> radius;
     std::vector<sf::Vector2f> middle;
     std::vector<float> length;
-
-
-
+    bool rButtonUp;
 
     //CreateRectangleObject(sf::Vector2f(1,1), sf::Color().Red,sf::Vector2f(-400,100),enemys);
 
@@ -85,21 +83,32 @@ int main()
     std::vector<bool> wallsMoving;
     std::vector<sf::Vector2f> wallDirection;
 
-
-    //obstacle
+    //obstacles
     std::vector<sf::RectangleShape> obstacles;
 
-    //create button
+    //create buttons
     std::vector<sf::RectangleShape> buttons;
 
-    //create door
+    //create doors
     std::vector<sf::RectangleShape> doors;
+    std::vector<sf::RectangleShape> oneWayDoors;
+    std::vector<int>oneWayDoorsDirections; //0 left, 1 right, 2 down, 3 up;
+    std::vector<int> five{5,5,5,5,5,5,5};
 
     std::vector<sf::RectangleShape> goals;
+    sf::Text title;
 
-    int level = 1;
+    title.setCharacterSize(25);
+    sf::Font font;
+    font.loadFromFile(":/fonts/PIXEARG_.TTF");
+    title.setFont(font);
+    title.setString("Go");
+
+
+
+    int level = 4;
     GenerateLevel4(obstacles, buttons, doors, goals, traps, movingWalls, wallDirection, wallsMoving, wallSpeeds, lockedIn, enemysTargetPos,
-                  enemysNormalPos, radius, middle, length, enemys);
+                  enemysNormalPos, radius, middle, length, enemys, oneWayDoors, oneWayDoorsDirections);
 
 
   while (window.isOpen())
@@ -111,7 +120,7 @@ int main()
         if (event.type == sf::Event::Closed)
                        window.close();
     }
-    CheckInput(moveDirectionX,moveDirectionY, spaceButtonPressed, eButtonPressed, pastPlayerPos, player);
+    CheckInput(moveDirectionX,moveDirectionY, spaceButtonPressed, eButtonPressed, pastPlayerPos, player, rButtonUp);
 
     if(enemys.size() > 0)
     {
@@ -141,10 +150,12 @@ int main()
         }
     }
 
-    CheckCollision(player, movingWalls, moveDirectionX, moveDirectionY, true, wallSpeeds, isGoingBackInTime);
-    CheckCollision(player, obstacles, moveDirectionX, moveDirectionY, false, wallSpeeds, false);
-    CheckCollision(player, doors, moveDirectionX, moveDirectionY, false, wallSpeeds, false);
-    CheckCollision(player, enemys, moveDirectionX, moveDirectionY, false, wallSpeeds, false);
+    CheckCollision(player, movingWalls, moveDirectionX, moveDirectionY, true, wallSpeeds, isGoingBackInTime, five);
+    CheckCollision(player, obstacles, moveDirectionX, moveDirectionY, false, wallSpeeds, false, five);
+    CheckCollision(player, doors, moveDirectionX, moveDirectionY, false, wallSpeeds, false, five);
+    CheckCollision(player, enemys, moveDirectionX, moveDirectionY, false, wallSpeeds, false, five);
+    CheckCollision(player, oneWayDoors, moveDirectionX, moveDirectionY, false, wallSpeeds, false, oneWayDoorsDirections);
+
 
 
     invincibilityTimR -= elasped.asSeconds();
@@ -157,7 +168,12 @@ int main()
         isHit = true;
         if(playerHealth <= 0)
         {
-            PlayerDie(player);
+            //PlayerDie(player);
+            DestroyLevelObjects(obstacles, buttons, doors, traps, movingWalls, wallDirection, wallsMoving, wallSpeeds, lockedIn, enemysTargetPos,
+                                enemysNormalPos, radius, middle, length, enemys, goals, oneWayDoors, oneWayDoorsDirections);
+            LoadNextLevel(level, obstacles, buttons, doors, goals, traps, movingWalls, wallDirection, wallsMoving, wallSpeeds
+                          , lockedIn, enemysTargetPos, enemysNormalPos, radius, middle, length, enemys, oneWayDoors, oneWayDoorsDirections);
+
         }
     }
 
@@ -218,11 +234,20 @@ int main()
     if(DoesCollide(playerPos,goals))
     {
         DestroyLevelObjects(obstacles, buttons, doors, traps, movingWalls, wallDirection, wallsMoving, wallSpeeds, lockedIn, enemysTargetPos,
-                            enemysNormalPos, radius, middle, length, enemys, goals);
+                            enemysNormalPos, radius, middle, length, enemys, goals, oneWayDoors, oneWayDoorsDirections);
         Reset(playerHealth, iteration, pastPlayerPos, enemysShootAgents, enemysShootAgentsTargetPositions, playerPos);
         level++;
         LoadNextLevel(level, obstacles, buttons, doors, goals, traps, movingWalls, wallDirection, wallsMoving, wallSpeeds
-                      , lockedIn, enemysTargetPos, enemysNormalPos, radius, middle, length, enemys);
+                      , lockedIn, enemysTargetPos, enemysNormalPos, radius, middle, length, enemys, oneWayDoors, oneWayDoorsDirections);
+    }
+    if(rButtonUp || player.getScale() == sf::Vector2f(0,0))
+    {
+        DestroyLevelObjects(obstacles, buttons, doors, traps, movingWalls, wallDirection, wallsMoving, wallSpeeds, lockedIn, enemysTargetPos,
+                            enemysNormalPos, radius, middle, length, enemys, goals, oneWayDoors, oneWayDoorsDirections);
+        Reset(playerHealth, iteration, pastPlayerPos, enemysShootAgents, enemysShootAgentsTargetPositions, playerPos);
+        LoadNextLevel(level, obstacles, buttons, doors, goals, traps, movingWalls, wallDirection, wallsMoving, wallSpeeds
+                      , lockedIn, enemysTargetPos, enemysNormalPos, radius, middle, length, enemys, oneWayDoors, oneWayDoorsDirections);
+        player.setScale(1,1);
     }
     MoveView(view, playerPos, elasped);
     window.setView(view);
@@ -253,6 +278,10 @@ int main()
     {
         window.draw(traps[i]);
     }
+    for(unsigned i = 0; i < oneWayDoors.size(); ++i)
+    {
+        window.draw(oneWayDoors[i]);
+    }
     for(unsigned i = 0; i < enemysShootAgents.size(); ++i)
     {
         for(unsigned j = 0; j < enemysShootAgents[i].size(); j++)
@@ -260,7 +289,7 @@ int main()
             window.draw((enemysShootAgents[i][j]));
         }
     }
-
+    window.draw(title);
     for(unsigned i = 0; i < circles.size(); ++i)
     {
         window.draw(circles[i]);

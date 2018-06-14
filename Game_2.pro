@@ -9,7 +9,8 @@ SOURCES += \
     object.cpp \
     enemy.cpp \
     player.cpp \
-    levels.cpp
+    levels.cpp \
+    obstacles.cpp
 
 
 QMAKE_CXXFLAGS += -std=c++11 -Wall -Wextra
@@ -24,6 +25,9 @@ HEADERS += \
     object.h \
     enemy.h \
     player.h \
-    levels.h
+    levels.h \
+    obstacles.h
 
+RESOURCES += \
+    game_2.qrc
 

@@ -18,6 +18,7 @@ void CreateEnemy(sf::Vector2f scale, sf::Color color, sf::Vector2f startPos, std
     radius.push_back(0);
     middle.push_back(sf::Vector2f(0,0));
     length.push_back(0);
+
 }
 sf::Vector2f Normalize(sf::Vector2f vector)
 {
@@ -148,8 +149,8 @@ void MoveEnemys(std::vector<sf::RectangleShape> &enemys, sf::Shape &player, std:
         float rangeY = player.getScale().y * 300;
 
         std::vector<float> temp;
-        CheckCollision(enemys[i],obstacles, enemyDirection.x, enemyDirection.y, false, temp, false);
-        CheckCollision(enemys[i], enemys, enemyDirection.x, enemyDirection.y, false, temp, false);
+        CheckCollision(enemys[i],obstacles, enemyDirection.x, enemyDirection.y, false, temp, false, {5,5,5,5,5,5,5});
+        CheckCollision(enemys[i], enemys, enemyDirection.x, enemyDirection.y, false, temp, false, {5,5,5,5,5,5});
 
         if(enemysTargetPos[i] != sf::Vector2f(0,0))
         {
